@@ -2,6 +2,7 @@ package com.mozzarelly.rodeo
 
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
+import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -11,22 +12,26 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        loadFragment(DevicesFragment())
+
         navigation.setOnNavigationItemSelectedListener(BottomNavigationView.OnNavigationItemSelectedListener { item ->
             return@OnNavigationItemSelectedListener when (item.itemId) {
                 R.id.navigation_home -> {
-                    message.setText(R.string.title_home)
+                    loadFragment(DevicesFragment())
                     true
                 }
                 R.id.navigation_dashboard -> {
-                    message.setText(R.string.title_dashboard)
                     true
                 }
                 R.id.navigation_notifications -> {
-                    message.setText(R.string.title_notifications)
                     true
                 }
                 else -> false
             }
         })
+    }
+
+    fun loadFragment(fragment: Fragment){
+        supportFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).commit()
     }
 }
