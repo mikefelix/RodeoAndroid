@@ -4,32 +4,34 @@
         xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="10dp"
         android:layout_gravity="fill_horizontal"
-        android:background="@drawable/card"
-        android:padding="20dp"
-        tools:context=".MainActivity"
-        android:id="@+id/linearLayoutCompat"
->
+        tools:context=".MainActivity" android:id="@+id/linearLayoutCompat">
 
     <TextView
             android:id="@+id/name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="18sp"
-            android:text="Device name"
+            android:textStyle="bold"
+            android:text="Group name"
             tools:ignore="HardcodedText"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
     />
 
-    <Switch
-            android:id="@+id/on_switch"
+    <GridView
+            android:id="@+id/devices"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:checked="false"
-            android:enabled="false"
-            app:layout_constraintBaseline_toBaselineOf="@+id/name"
-            app:layout_constraintEnd_toEndOf="@+id/name"/>
+            android:padding="5dp"
+            android:layout_margin="5dp"
+            android:numColumns="2"
+            android:verticalSpacing="5dp"
+            android:horizontalSpacing="5dp"
+            android:gravity="start"
+            app:layout_constraintTop_toBottomOf="@id/name"
+            app:layout_constraintStart_toStartOf="parent"
+    />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

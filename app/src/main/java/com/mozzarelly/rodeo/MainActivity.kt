@@ -1,9 +1,9 @@
 package com.mozzarelly.rodeo
 
 import android.os.Bundle
-import android.support.design.widget.BottomNavigationView
-import android.support.v4.app.Fragment
-import android.support.v7.app.AppCompatActivity
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import androidx.appcompat.app.AppCompatActivity
+import com.mozzarelly.rodeo.devices.DevicesFragment
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -16,22 +16,16 @@ class MainActivity : AppCompatActivity() {
 
         navigation.setOnNavigationItemSelectedListener(BottomNavigationView.OnNavigationItemSelectedListener { item ->
             return@OnNavigationItemSelectedListener when (item.itemId) {
-                R.id.navigation_home -> {
-                    loadFragment(DevicesFragment())
-                    true
-                }
-                R.id.navigation_dashboard -> {
-                    true
-                }
-                R.id.navigation_notifications -> {
-                    true
-                }
+                R.id.navigation_devices -> loadFragment(DevicesFragment())
+                R.id.navigation_alarm -> loadFragment(AlarmFragment())
+                R.id.navigation_weather -> loadFragment(WeatherFragment())
                 else -> false
             }
         })
     }
 
-    fun loadFragment(fragment: Fragment){
+    fun loadFragment(fragment: androidx.fragment.app.Fragment): Boolean {
         supportFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).commit()
+        return true
     }
 }
