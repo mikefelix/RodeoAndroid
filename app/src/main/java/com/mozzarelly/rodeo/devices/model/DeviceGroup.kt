@@ -1,4 +1,4 @@
-package com.mozzarelly.rodeo.devices
+package com.mozzarelly.rodeo.devices.model
 
 import com.google.gson.annotations.SerializedName
 
@@ -8,9 +8,10 @@ import com.google.gson.annotations.SerializedName
 
 
  */
-data class Range(
+data class DeviceGroup(
     @SerializedName("name") val name: String,
-    @SerializedName("start") val start: String,
-    @SerializedName("end") val end: String,
-    @SerializedName("on") val active: Boolean
-)
+//    @SerializedName("devicesState") val devicesState: List<Device>
+    @SerializedName("devices") val devices: List<String>
+){
+    fun desc() = name.capitalize()
+}

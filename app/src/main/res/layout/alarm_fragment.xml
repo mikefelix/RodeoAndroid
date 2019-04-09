@@ -1,11 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".MainActivity">
+>
+
+    <data>
+        <import type="android.view.View"/>
+        <variable
+                name="model"
+                type="com.mozzarelly.rodeo.alarm.AlarmViewModel"/>
+    </data>
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefresh"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+    >
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context=".MainActivity">
+
+            <include layout="@layout/alarmday"
+                     android:id="@+id/monday"
+                     android:layout_width="0dp"
+                     android:layout_height="wrap_content"
+                     app:layout_constraintTop_toBottomOf="parent"
+                     app:layout_constraintStart_toStartOf="parent"
+                     app:layout_constraintEnd_toEndOf="parent"
+                     app:model="@{model.days.get(0)}"
+            />
+
+            <include layout="@layout/alarmday"
+                     android:id="@+id/tuesday"
+                     android:layout_width="0dp"
+                     android:layout_height="wrap_content"
+                     app:layout_constraintTop_toBottomOf="@id/monday"
+                     app:layout_constraintStart_toStartOf="parent"
+                     app:layout_constraintEnd_toEndOf="parent"
+                     app:model="@{model.days.get(1)}"
+            />
+
+            <include layout="@layout/alarmday"
+                     android:id="@+id/wednesday"
+                     android:layout_width="0dp"
+                     android:layout_height="wrap_content"
+                     app:layout_constraintTop_toBottomOf="@id/tuesday"
+                     app:layout_constraintStart_toStartOf="parent"
+                     app:layout_constraintEnd_toEndOf="parent"
+                     app:model="@{model.days.get(2)}"
+            />
+
+            <include layout="@layout/alarmday"
+                     android:id="@+id/thursday"
+                     android:layout_width="0dp"
+                     android:layout_height="wrap_content"
+                     app:layout_constraintTop_toBottomOf="@id/wednesday"
+                     app:layout_constraintStart_toStartOf="parent"
+                     app:layout_constraintEnd_toEndOf="parent"
+                     app:model="@{model.days.get(3)}"
+            />
+
+            <include layout="@layout/alarmday"
+                     android:id="@+id/friday"
+                     android:layout_width="0dp"
+                     android:layout_height="wrap_content"
+                     app:layout_constraintTop_toBottomOf="@id/thursday"
+                     app:layout_constraintStart_toStartOf="parent"
+                     app:layout_constraintEnd_toEndOf="parent"
+                     app:model="@{model.days.get(4)}"
+            />
+
+            <include layout="@layout/alarmday"
+                     android:id="@+id/saturday"
+                     android:layout_width="0dp"
+                     android:layout_height="wrap_content"
+                     app:layout_constraintTop_toBottomOf="@id/friday"
+                     app:layout_constraintStart_toStartOf="parent"
+                     app:layout_constraintEnd_toEndOf="parent"
+                     app:model="@{model.days.get(5)}"
+            />
+
+            <include layout="@layout/alarmday"
+                     android:id="@+id/sunday"
+                     android:layout_width="0dp"
+                     android:layout_height="wrap_content"
+                     app:layout_constraintTop_toBottomOf="@id/saturday"
+                     app:layout_constraintStart_toStartOf="parent"
+                     app:layout_constraintEnd_toEndOf="parent"
+                     app:model="@{model.days.get(6)}"
+            />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</layout>

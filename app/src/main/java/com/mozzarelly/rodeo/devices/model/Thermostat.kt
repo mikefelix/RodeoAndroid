@@ -1,4 +1,4 @@
-package com.mozzarelly.rodeo.devices
+package com.mozzarelly.rodeo.devices.model
 
 import com.google.gson.annotations.SerializedName
 
