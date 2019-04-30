@@ -19,7 +19,7 @@ class MainActivity : AppCompatActivity() {
 //        appBarConfiguration = AppBarConfiguration(R.menu.navigation, null)
         setSupportActionBar(toolbar)
 
-        loadFragment(DevicesFragment())
+        loadFragment(AlarmFragment())
 
         navigation.setOnNavigationItemSelectedListener(BottomNavigationView.OnNavigationItemSelectedListener { item ->
             return@OnNavigationItemSelectedListener when (item.itemId) {

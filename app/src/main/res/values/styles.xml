@@ -19,4 +19,12 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light"/>
 
+    <style name="Highlighted">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Normal">
+        <item name="android:textStyle">normal</item>
+    </style>
+
 </resources>

@@ -50,9 +50,9 @@ class DevicesFragment : androidx.fragment.app.Fragment() {
             Snackbar.make(devicesRecycler, "Error loading devices: ${err.message}", Snackbar.LENGTH_LONG).show()
         }
 
-        viewModel.onErrorLoadingElement { name, err ->
-            Snackbar.make(devicesRecycler, "Error loading device $name: ${err.message}", Snackbar.LENGTH_LONG).show()
-        }
+//        viewModel.onErrorLoadingElement { name, err ->
+//            Snackbar.make(devicesRecycler, "Error loading device $name: ${err.message}", Snackbar.LENGTH_LONG).show()
+//        }
 
         refreshDevices()
     }

@@ -86,7 +86,7 @@ class DevicesLCE : ListLCE<DevicesContainer, Device, DeviceRow>() {
 
 class FakeDevicesLCE : ListLCE<DevicesContainer, Device, DeviceRow>() {
     val devices: MutableMap<String,Device?> = mutableMapOf(
-        device("fan", null, false),
+        device("fan", null),
         device("bedheat", "bed"),
         device("bedlamp", "lamp"),
         device("outside"),
@@ -117,8 +117,8 @@ class FakeDevicesLCE : ListLCE<DevicesContainer, Device, DeviceRow>() {
         )
     ), listOf(), Thermostat())
 
-    fun device(name: String, alias: String? = null, working: Boolean = true) =
-        name to Device(name, alias, false)
+    fun device(name: String, alias: String? = null) =
+        name to Device(name, alias)
 
     override fun DevicesContainer.asRows(): List<DeviceRow> {
         val rows = mutableListOf<DeviceRow>()

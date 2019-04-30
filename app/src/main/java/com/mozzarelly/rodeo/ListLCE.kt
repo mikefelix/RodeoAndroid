@@ -80,7 +80,7 @@ abstract class ListLCE<C, E: HasName, R> : ViewModel(){
             }
             catch (e: Throwable) {
                 Log.e("refreshElement", "Oops: Something went wrong. " + e.message)
-                elementErrorCallbacks.callAll(name, e)
+                elementErrorCallbacks[name].callAll(e)
             }
         }
     }
@@ -106,7 +106,7 @@ abstract class ListLCE<C, E: HasName, R> : ViewModel(){
                 elementCompleteCallbacks[element.name].callAll(elem)
             }
             catch (e: Throwable) {
-                elementErrorCallbacks.callAll(element.name, e)
+                elementErrorCallbacks[element.name].callAll(e)
                 Log.e("updateDevice", "Oops: Something went wrong. " + e.message)
             }
         }
@@ -155,9 +155,9 @@ abstract class ListLCE<C, E: HasName, R> : ViewModel(){
         containerErrorCallbacks.add(block)
     }
 
-    private val elementErrorCallbacks = mutableSetOf<(String, Throwable) -> Unit>()
-    fun onErrorLoadingElement(block: (name: String, t: Throwable) -> Unit){
-        elementErrorCallbacks.add(block)
+    private val elementErrorCallbacks = mutableMapOf<String, MutableSet<(Throwable) -> Unit>>()
+    fun onErrorLoadingElement(name: String, block: (Throwable) -> Unit){
+        elementErrorCallbacks.computeIfAbsent(name) { mutableSetOf() }.add(block)
     }
 
     private fun <A: Function0<*>> Set<A>?.callAll(){

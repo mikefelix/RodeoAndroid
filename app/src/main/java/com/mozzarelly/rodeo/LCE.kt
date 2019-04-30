@@ -2,6 +2,7 @@ package com.mozzarelly.rodeo
 
 import android.os.Handler
 import android.util.Log
+import androidx.databinding.ObservableBoolean
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,7 +10,11 @@ import com.mozzarelly.rodeo.Utils.observe
 import kotlinx.coroutines.*
 
 abstract class LCE<X> : ViewModel(){
+    val refreshing = MutableLiveData<Boolean>(false)
+
     val data: MutableLiveData<X?> = MutableLiveData()
+
+    fun data(): X? = data.value
 
     fun observe(owner: LifecycleOwner, block: (x: X) -> Unit){
         owner.observe(data) {
@@ -34,34 +39,39 @@ abstract class LCE<X> : ViewModel(){
         errorCallbacks.add(block)
     }
 
-    fun refresh(): Job {
+    private val viewModelScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+
+    fun refresh() {
+        refreshing.value = true
         beginLoadingCallbacks.callAll()
 
-        return GlobalScope.async(Dispatchers.IO) {
-            try {
+        try {
+            viewModelScope.launch {
                 val value = doRefresh()
-                data.postValue(value)
+                data.value = value
+                refreshing.value = false
                 afterRefresh()
                 completeCallbacks.callAll(value)
             }
-            catch (e: Throwable) {
-                Log.e("refresh", "Oops: Something went wrong. " + e.message)
-                errorCallbacks.forEach { it(e) }
-            }
+        }
+        catch (e: Throwable) {
+            Log.e("refresh", "Oops: Something went wrong. " + e.message)
+            errorCallbacks.forEach { it(e) }
         }
     }
 
     fun update(value: X) {
         beginLoadingCallbacks.callAll()
 
-        GlobalScope.launch(Dispatchers.IO) {
-            try {
+        try {
+            viewModelScope.launch {
                 val newVal = doUpdate(value)
                 completeCallbacks.callAll(newVal)
             }
-            catch (e: Throwable) {
-                Log.e("updateDevice", "Oops: Something went wrong. " + e.message)
-            }
+        }
+        catch (e: Throwable) {
+            Log.e("updateDevice", "Oops: Something went wrong. " + e.message)
+            errorCallbacks.forEach { it(e) }
         }
     }
 
@@ -84,4 +94,10 @@ abstract class LCE<X> : ViewModel(){
 
     private val handler = Handler()
 
+    override fun onCleared(){
+        completeCallbacks.clear()
+        beginLoadingCallbacks.clear()
+        errorCallbacks.clear()
+        viewModelScope.cancel()
+    }
 }
