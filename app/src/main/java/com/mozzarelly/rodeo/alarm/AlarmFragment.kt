@@ -1,21 +1,26 @@
 package com.mozzarelly.rodeo.alarm
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.snackbar.Snackbar
+import com.mozzarelly.rodeo.RodeoFragment
 import com.mozzarelly.rodeo.TimePickerFragment
 import com.mozzarelly.rodeo.Utils.observe
+import com.mozzarelly.rodeo.alarm.model.AlarmSetting
+import com.mozzarelly.rodeo.alarm.model.Time
 import com.mozzarelly.rodeo.databinding.AlarmFragmentBinding
+import android.view.*
+import com.mozzarelly.rodeo.NumberPickerFragment
+import com.mozzarelly.rodeo.R
 
 
-class AlarmFragment : androidx.fragment.app.Fragment() {
+class AlarmFragment : RodeoFragment() {
 
     var timePicker: TimePickerFragment? = null
+    var numberPicker: NumberPickerFragment? = null
+    lateinit var viewModel: AlarmViewModel
 
     @Suppress("UNCHECKED_CAST")
     val factory = object: ViewModelProvider.NewInstanceFactory(){
@@ -23,43 +28,78 @@ class AlarmFragment : androidx.fragment.app.Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val binding = AlarmFragmentBinding.inflate(inflater, container, false)
+        AlarmFragmentBinding.inflate(inflater, container, false).run {
+            setHasOptionsMenu(true)
+            lifecycleOwner = this@AlarmFragment
+            rootView = this.root
+            viewModel = ViewModelProviders.of(this@AlarmFragment, factory).get(AlarmViewModel::class.java).also { model ->
+                model.onError {
+                    Snackbar.make(swipeRefresh, "Error loading alarm: ${it.message}", Snackbar.LENGTH_LONG)
+                        .show()
+                }
 
-        binding.lifecycleOwner = this
+                observe(model.editingDay) { dayEditing ->
+                    if (dayEditing != null) {
+                        fragmentManager?.let { fragMan ->
+                            timePicker = TimePickerFragment(
+                                setting = dayEditing.model ?: AlarmSetting(Time.fromString("8:00")),
+                                title = "Edit " + (dayEditing.day.value ?: "time"),
+                                okListener = { model.saveTime(it) },
+                                offListener = { model.saveTime(null) },
+                                cancelListener = { model.editingDay.value = null }
+                            ).apply {
+                                show(fragMan, "timePicker")
+                            }
+                        }
+                    }
+                    else {
+                        timePicker?.dismiss()
+                    }
+                }
 
-        binding.model = ViewModelProviders.of(this, factory).get(AlarmViewModel::class.java).also { model ->
-
-            model.onError {
-                Snackbar.make(binding.swipeRefresh, "Error loading alarm: ${it.message}", Snackbar.LENGTH_LONG).show()
-            }
-
-            binding.swipeRefresh.setOnRefreshListener {
-                model.refresh()
-            }
-
-            observe(model.editingDay) { time ->
-                if (time != null){
-                    fragmentManager?.let { fragMan ->
-                        timePicker = TimePickerFragment(time,
-                            okListener = { model.saveTime(it) },
-                            offListener = { model.saveTime(null) },
-                            cancelListener = { model.editingDay.value = null }
-                        ).apply {
-                            show(fragMan, "timePicker")
+                observe(model.disableFor) { days ->
+                    if (days == null) {
+                        numberPicker?.dismiss()
+                    }
+                    else {
+                        fragmentManager?.let { fragMan ->
+                            numberPicker = NumberPickerFragment(
+                                title = "Disable alarm",
+                                message = "Disable for how many days?",
+                                setting = days,
+                                okListener = { model.saveDisabled(it) },
+                                cancelListener = { model.disableFor.value = null }
+                            ).apply {
+                                show(fragMan, "numberPicker")
+                            }
                         }
                     }
                 }
-                else {
-                    timePicker?.dismiss()
-                }
+
+                model.refresh()
             }
 
-            model.refresh()
+            model = viewModel
         }
 
-        return binding.root
+        return rootView
     }
 
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId){
+        R.id.action_override -> {
+            viewModel.showOverrideNextDialog()
+            true
+        }
+        R.id.action_disable -> {
+            viewModel.showDisableDialog()
+            true
+        }
+        else -> false
+    }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.alarm_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
 }
 

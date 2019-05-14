@@ -1,0 +1,52 @@
+{
+  "groups": [
+    {
+      "name": "bedroom",
+      "devices": [
+        {
+          "name": "fan",
+          "on": false,
+          "history": {
+            "off": {
+              "date": "03/01/2019, 11:11:34am",
+              "source": "timer elapsed"
+            }
+          }
+        },
+        {
+          "name": "bedheat",
+          "alias": "bed",
+          "on": true,
+          "power": 1.9449999999999998,
+          "history": {
+            "on": {
+              "date": "03/01/2019, 7:46:35am",
+              "source": "triggered by user"
+            },
+            "off": {
+              "date": "03/01/2019, 7:10:38am",
+              "source": "schedule (off)"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "garage",
+      "devices": [
+        {
+          "alias": "door",
+          "name": "garagedoor",
+          "is_open": false,
+          "keep_open": false,
+          "last_open_time": "03/01/2019, 1:16:25pm",
+          "last_close_time": "03/01/2019, 1:17:37pm",
+          "next_close_time": null,
+          "close_attempts": 0,
+          "current_time": "03/01/2019, 7:09:21pm",
+          "offline": false
+        }
+      ]
+    }
+  ]
+}

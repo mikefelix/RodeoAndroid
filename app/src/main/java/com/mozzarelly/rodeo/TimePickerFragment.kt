@@ -6,26 +6,25 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.text.format.DateFormat
 import android.widget.TimePicker
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
-import com.mozzarelly.rodeo.alarm.model.AlarmTime
+import com.mozzarelly.rodeo.alarm.model.AlarmSetting
+import com.mozzarelly.rodeo.alarm.model.Time
 
-data class Time(val hour: String, val minute: String){
-    override fun toString() = "$hour:$minute"
-}
-
-class TimePickerFragment(val time: AlarmTime,
+class TimePickerFragment(val setting: AlarmSetting,
+                         val title: String,
                          val okListener: (Time) -> Unit,
                          val offListener: () -> Unit,
                          val cancelListener: () -> Unit)
     : DialogFragment(), TimePickerDialog.OnTimeSetListener {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        time.time ?: throw IllegalStateException("No time found.")
-        val (hour, minute) = time.time.split(":")
+        setting.time ?: throw IllegalStateException("No setting found.")
+        val (hour, minute) = setting.time
 
-        return TimePickerDialog(activity!!, this, hour.toInt(), minute.toInt(), DateFormat.is24HourFormat(activity)).apply {
-            setButton(DialogInterface.BUTTON_NEUTRAL, "Off") { _, _ -> offListener() }
+        return TimePickerDialog(requireContext(), this,
+            hour.toInt(), minute.toInt(), DateFormat.is24HourFormat(activity)).apply {
+                setButton(DialogInterface.BUTTON_NEUTRAL, "Off") { _, _ -> offListener() }
+                setTitle(title)
         }
     }
 

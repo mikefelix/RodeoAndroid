@@ -1,22 +1,19 @@
 package com.mozzarelly.rodeo.alarm
 
-import androidx.databinding.Observable
-import androidx.databinding.PropertyChangeRegistry
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.mozzarelly.rodeo.LCE
-import com.mozzarelly.rodeo.Time
-import com.mozzarelly.rodeo.alarm.model.Alarm
-import com.mozzarelly.rodeo.alarm.model.AlarmOverride
-import com.mozzarelly.rodeo.alarm.model.AlarmTime
+import com.mozzarelly.rodeo.alarm.model.*
+import com.squareup.moshi.Moshi
+import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 
-class AlarmViewModel : LCE<Alarm>(), Observable {
+class AlarmViewModel : LCE<Alarm>() {
 
     val monday1 = AlarmDayViewModel()
     val tuesday1 = AlarmDayViewModel()
@@ -33,13 +30,19 @@ class AlarmViewModel : LCE<Alarm>(), Observable {
     val saturday2 = AlarmDayViewModel()
     val sunday2 = AlarmDayViewModel()
 
-    val editingDay = liveData<AlarmTime>()
+    val editingDay = liveData<AlarmDayViewModel>()
+    val disableFor = liveData<Int>()
     val readout = liveData<String>()
+
+    var next: AlarmDayViewModel? = null
 
     companion object {
         val api: AlarmApi = Retrofit.Builder()
             .baseUrl("https://mozzarelly.com/home/")
-            .addConverterFactory(MoshiConverterFactory.create())
+            .addConverterFactory(MoshiConverterFactory.create(Moshi.Builder()
+                .add(TimeAdapter())
+                .build()
+            ))
             .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .client(
                 OkHttpClient.Builder().addInterceptor(
@@ -50,26 +53,23 @@ class AlarmViewModel : LCE<Alarm>(), Observable {
     }
 
     inner class AlarmDayViewModel : ViewModel() {
-        var model: AlarmTime? = null
+        var model: AlarmSetting? = null
             set(value) {
                 field = value
-                day.value = field?.day
-                time.value = field?.time ?: "off"
-                oddWeek.value = field?.oddWeek
-                highlighted.value = data()?.let { alarm ->
-                    val (today, todayWeek) = alarm.today.split("_")
-                    today.toLowerCase() == model?.day?.toLowerCase() && (todayWeek == "odd") == model?.oddWeek
+                day.value = field?.dayName()
+                time.value = field?.time?.toString() ?: "off"
+                if (data()?.today == model?.day) {
+                    highlighted.value = true
                 }
             }
 
         val day = liveData<String>()
         val time = liveData<String>()
         val enabled = liveData<Boolean>()
-        val oddWeek = liveData<Boolean>()
         val highlighted = liveData<Boolean>()
 
         fun editDay() {
-            editingDay.value = model
+            editingDay.value = this
         }
     }
 
@@ -91,11 +91,17 @@ class AlarmViewModel : LCE<Alarm>(), Observable {
             }
         }
         else {
-            if (alarm.next.enabled) {
-                "The alarm is set to ring ${alarm.next.day} at ${alarm.next.time}."
+            if (alarm.next.enabled()) {
+                val day = when (alarm.next.day){
+                    alarm.today -> "today"
+                    (alarm.today + 1) % 14 -> "tomorrow"
+                    else -> DayNames.values()[alarm.next.day].toString()
+                }
+
+                "The alarm is set to ring $day at ${alarm.next.time}."
             }
             else {
-                "The alarm is disabled ${alarm.next.day}."
+                "The alarm is disabled."
             }
         }
     }
@@ -104,22 +110,56 @@ class AlarmViewModel : LCE<Alarm>(), Observable {
         editingDay.value = null
     }
 
-    fun saveTime(time: Time?){
-        editingDay.value = time?.let { editingDay.value?.copy(time = it.toString()) }
+    fun saveDisabled(days: Int){
+        try {
+            viewModelScope.launch {
+                api.disable(days).await()
+            }
+        }
+        catch (e: Exception) {
+            postError(e)
+        }
     }
 
-    //    override suspend fun doRefresh() = api.getAlarm().await()
-    override suspend fun doRefresh() = Alarm(
-        false, AlarmTime("tomorrow", false, "07:00", true),
-        "07:00", AlarmOverride(true, null, 2), false, "", null,
-        arrayOf(null, "07:00", "07:00", "07:00", "07:00", "07:00", "07:00", "09:00", "07:00", "07:00", "07:00", "07:00", "07:00", "07:00"),
-        "friday_even"
-    )
+    fun saveTime(time: Time?){
+        val day = editingDay.value ?: return
+        val newModel = day.model?.copy(time = time) ?: throw RuntimeException("No model is being edited?")
+        day.model = newModel
+
+        try {
+            viewModelScope.launch {
+                val action = if (day == next)
+                    api.saveOverride(newModel.time?.toString() ?: "off")
+                else
+                    api.saveSetting(newModel.day.toString(), newModel.time?.toString() ?: "off")
+
+                action.await()
+            }
+        }
+        catch (e: Exception) {
+            postError(e)
+        }
+        finally {
+            editingDay.value = null
+        }
+    }
+
+    fun showOverrideNextDialog(){
+        editingDay.value = next
+    }
+
+    fun showDisableDialog(){
+        data()?.override?.run {
+            disableFor.value = if (disable == true) days else 1
+        }
+    }
+
+    override suspend fun doRefresh() = api.getAlarm().await()
 
     override suspend fun doUpdate(x: Alarm) = api.setAlarm(x).await()
 
     override fun afterRefresh() {
-        val days = data()?.days()/*?.map { AlarmDayViewModel(it) }*/ ?: listOf()
+        val days = data()?.days() ?: listOf()
         monday1.model = days[0]
         tuesday1.model = days[1]
         wednesday1.model = days[2]
@@ -136,41 +176,11 @@ class AlarmViewModel : LCE<Alarm>(), Observable {
         sunday2.model = days.getOrElse(13) { days[6] }
 
         readout.value = alarmText()
+
+        next = AlarmDayViewModel().apply { model = data()?.next }
     }
 
-    private val callbacks: PropertyChangeRegistry = PropertyChangeRegistry()
-
-    override fun addOnPropertyChangedCallback(
-        callback: Observable.OnPropertyChangedCallback
-    ) {
-        callbacks.add(callback)
-    }
-
-    override fun removeOnPropertyChangedCallback(
-        callback: Observable.OnPropertyChangedCallback
-    ) {
-        callbacks.remove(callback)
-    }
-
-    /**
-     * Notifies observers that all properties of this instance have changed.
-     */
-    fun notifyChange() {
-        callbacks.notifyCallbacks(this, 0, null)
-    }
-
-    /**
-     * Notifies observers that a specific property has changed. The getter for the
-     * property that changes should be marked with the @Bindable annotation to
-     * generate a field in the BR class to be used as the fieldId parameter.
-     *
-     * @param fieldId The generated BR id for the Bindable field.
-     */
-    fun notifyPropertyChanged(fieldId: Int) {
-        callbacks.notifyCallbacks(this, fieldId, null)
-    }
-
-    fun <T> T.toLiveData(): MutableLiveData<T> = MutableLiveData(this)
+    fun <T> T?.toLiveData(): MutableLiveData<T> = MutableLiveData<T>(this)
 
     fun <T> liveData(t: T? = null): MutableLiveData<T?> = MutableLiveData(t)
 

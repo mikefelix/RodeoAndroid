@@ -39,9 +39,9 @@ abstract class LCE<X> : ViewModel(){
         errorCallbacks.add(block)
     }
 
-    private val viewModelScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    protected val viewModelScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
-    fun refresh() {
+    open fun refresh() {
         refreshing.value = true
         beginLoadingCallbacks.callAll()
 
@@ -55,12 +55,11 @@ abstract class LCE<X> : ViewModel(){
             }
         }
         catch (e: Throwable) {
-            Log.e("refresh", "Oops: Something went wrong. " + e.message)
-            errorCallbacks.forEach { it(e) }
+            postError(e)
         }
     }
 
-    fun update(value: X) {
+    open fun update(value: X) {
         beginLoadingCallbacks.callAll()
 
         try {
@@ -70,9 +69,13 @@ abstract class LCE<X> : ViewModel(){
             }
         }
         catch (e: Throwable) {
-            Log.e("updateDevice", "Oops: Something went wrong. " + e.message)
-            errorCallbacks.forEach { it(e) }
+            postError(e)
         }
+    }
+
+    protected fun postError(e: Throwable) {
+        Log.e("LCE", "Oops: Something went wrong. " + e.message)
+        errorCallbacks.forEach { it(e) }
     }
 
     protected abstract suspend fun doRefresh(): X

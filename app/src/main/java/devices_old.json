@@ -1,0 +1,96 @@
+{
+  "devices": [
+    {
+      "name": "garagedoor",
+      "is_open": false,
+      "keep_open": false,
+      "last_open_time": "03/01/2019, 1:16:25pm",
+      "last_close_time": "03/01/2019, 1:17:37pm",
+      "next_close_time": null,
+      "close_attempts": 0,
+      "current_time": "03/01/2019, 7:09:21pm",
+      "offline": false
+    },
+    {
+      "fan": "fan",
+      "on": false,
+      "history": {
+        "off": {
+          "date": "03/01/2019, 11:11:34am",
+          "source": "timer elapsed"
+        }
+      }
+    },
+    {
+      "name": "office",
+      "on": false,
+      "history": {
+        "off": {
+          "date": "03/01/2019, 6:04:35pm",
+          "source": "schedule (off)"
+        },
+        "on": {
+          "date": "03/01/2019, 5:39:35pm",
+          "source": "schedule (on)"
+        }
+      }
+    },
+    {
+      "name": "bedheat",
+      "on": true,
+      "power": 1.9449999999999998,
+      "history": {
+        "on": {
+          "date": "03/01/2019, 7:46:35am",
+          "source": "triggered by user"
+        },
+        "off": {
+          "date": "03/01/2019, 7:10:38am",
+          "source": "schedule (off)"
+        }
+      }
+    },
+    {
+      "name": "phone",
+      "ip": "192.168.0.129",
+      "readonly": true,
+      "on": false
+    }
+  ],
+  "ranges": [
+    {
+      "name":"day",
+      "start": "sunrise",
+      "end": "sunset-30",
+      "active": false
+    }
+  ],
+  "thermostat": {
+    "away": false,
+    "temp": 68,
+    "target": 68,
+    "humidity": 35,
+    "state": "off",
+    "on": false,
+    "mode": "heat"
+  },
+  "times": {
+    "current": "03/01/2019, 7:09:21pm",
+    "isNight": true,
+    "sunrise": "03/01/2019, 7:03:21am",
+    "sunset": "03/01/2019, 6:16:37pm",
+    "dayReset": "03/01/2019, 4:00:00am"
+  },
+  "cache": {
+    "up:office": "81",
+    "up:grow": "603",
+    "up:bedheat": "677",
+    "override:bedheat": "all",
+    "override:couchlamp": "all",
+    "up:floorlamp": "66",
+    "up:wine": "51",
+    "up:aquarium": "719",
+    "up:couchlamp": "340",
+    "up:tessel": "102856"
+  }
+}

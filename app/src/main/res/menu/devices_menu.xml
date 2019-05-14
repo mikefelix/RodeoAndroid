@@ -5,9 +5,4 @@
         app:showAsAction="never"
         android:title="@string/refresh"/>
 
-    <!-- Settings, should always be in the overflow -->
-    <item android:id="@+id/action_settings"
-          android:title="@string/action_settings"
-          app:showAsAction="never"/>
-
 </menu>

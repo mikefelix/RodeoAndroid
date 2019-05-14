@@ -18,6 +18,7 @@
             android:id="@+id/swipeRefresh"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:onRefreshListener="@{() -> model.refresh()}"
             app:refreshing="@{model.refreshing}"
     >
 
@@ -46,8 +47,8 @@
                   android:layout_width="match_parent"
                   android:background="#90909090"
                   android:layout_marginTop="15dp"
-                  android:layout_marginStart="15dp"
-                  android:layout_marginEnd="15dp"
+                  android:layout_marginStart="25dp"
+                  android:layout_marginEnd="25dp"
                   app:layout_constraintTop_toBottomOf="@id/readout"
             />
 
@@ -61,7 +62,8 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/week2"
                     android:textAlignment="viewStart"
-                    android:layout_marginStart="10dp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="25dp"
                     android:layout_marginTop="10dp"/>
 
             <TextView
@@ -73,7 +75,8 @@
                     app:layout_constraintTop_toBottomOf="@id/separator"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/week1"
-                    android:layout_marginStart="10dp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="25dp"
                     android:layout_marginTop="10dp"/>
             
             <include layout="@layout/alarmday"
